@@ -1,0 +1,248 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build verification",
+			"type": "shell",
+			"command": "npm run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build verification with explicit npm path",
+			"type": "shell",
+			"command": "\"C:\\Program Files\\nodejs\\npm.cmd\" run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build verification with explicit npm path",
+			"type": "shell",
+			"command": "& \"C:\\Program Files\\nodejs\\npm.cmd\" run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build verification with PATH fix",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\Program Files\\nodejs'; npm run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build verification with cmd npm",
+			"type": "shell",
+			"command": "cmd /c \"C:\\Program Files\\nodejs\\npm.cmd\" run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build verification with short path npm",
+			"type": "shell",
+			"command": "cmd /c \"C:\\PROGRA~1\\nodejs\\npm.cmd\" run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build verification with PATH in cmd",
+			"type": "shell",
+			"command": "cmd /c \"set PATH=C:\\PROGRA~1\\nodejs;%PATH% && \"C:\\PROGRA~1\\nodejs\\npm.cmd\" run build\"",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build verification with PATH in cmd",
+			"type": "shell",
+			"command": "cmd /c 'set PATH=C:\\PROGRA~1\\nodejs;%PATH% && \"C:\\PROGRA~1\\nodejs\\npm.cmd\" run build'",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build verification using explicit npm.cmd",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; & \"C:\\PROGRA~1\\nodejs\\npm.cmd\" run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Install Google Maps loader",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' install @googlemaps/js-api-loader --save",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify fixed map build",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify app build after loader fix",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Re-verify production build",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify 3D camera animation build",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Confirm 3D fly-to build",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build with Node memory ceiling",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify camera animation fix",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify compact collapsible panel build",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify smaller left card build",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify satellite map build",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify two-column dashboard layout build",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify map-column visibility fix",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify 3D map mode build",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Final verify 3D map mode",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify map ID warning fix",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Verify 2D/3D toggle build",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=4096'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Reverify 2D/3D toggle with safer memory",
+			"type": "shell",
+			"command": "$env:Path += ';C:\\PROGRA~1\\nodejs'; $env:NODE_OPTIONS='--max-old-space-size=8192'; $env:CI='1'; & 'C:\\PROGRA~1\\nodejs\\npm.cmd' run build; Write-Host BUILD_EXIT:$LASTEXITCODE",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}
