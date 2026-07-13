@@ -5,6 +5,7 @@ import { StadiumInfoPanel } from "@/components/stadium-info-panel";
 import { hostCities, type HostCity } from "@/components/host-city-data";
 import Map3D from "@/components/map-3d";
 import { AIMatchIntelligence } from "@/components/ai-match-intelligence";
+import { MatchFilterPanel, type MatchFilters } from "@/components/match-filter-panel";
 
 function isWebGL2Available() {
   if (typeof window === 'undefined') return false;
@@ -21,11 +22,52 @@ export function GoogleWorldCupExplorer() {
   const [webGL2Supported, setWebGL2Supported] = useState(true);
   const [aiIntelligenceOpen, setAiIntelligenceOpen] = useState(false);
   const [showAdLayer, setShowAdLayer] = useState(true);
+
+  // Dynamic match filter state
+  const [filters, setFilters] = useState<MatchFilters>({
+    date: '',
+    team: '',
+    stage: '',
+    city: '',
+  });
+
   const hasApiKey = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
     setWebGL2Supported(isWebGL2Available());
   }, []);
+
+  // Filter the list of host cities dynamically
+  const filteredCities = useMemo(() => {
+    return hostCities.filter((city) => {
+      // 1. Host City Filter
+      if (filters.city && city.name !== filters.city) return false;
+
+      // 2. Team Filter (check match teams)
+      if (filters.team && city.teamInfo.homeTeam !== filters.team && city.teamInfo.awayTeam !== filters.team) {
+        return false;
+      }
+
+      // 3. Tournament Stage Filter
+      if (filters.stage && !city.fixtures.some((fix) => fix.stage === filters.stage)) {
+        return false;
+      }
+
+      // 4. Match Date Filter
+      if (filters.date && !city.fixtures.some((fix) => fix.time.startsWith(filters.date))) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [filters]);
+
+  // Auto-deselect city if it is filtered out of the active set
+  useEffect(() => {
+    if (selectedCity && !filteredCities.some((c) => c.id === selectedCity.id)) {
+      setSelectedCity(null);
+    }
+  }, [filters, filteredCities, selectedCity]);
 
   // Auto-close AI Match Intelligence panel when returning to World View
   useEffect(() => {
@@ -38,75 +80,81 @@ export function GoogleWorldCupExplorer() {
     <div className="relative min-h-screen overflow-hidden bg-[#040814] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.18),transparent_20%),radial-gradient(circle_at_top_right,_rgba(124,58,237,0.18),transparent_25%),linear-gradient(135deg,_#020617,_#05111f_50%,_#020617)]" />
 
-      <div className="absolute left-4 top-4 z-20 w-[min(20rem,calc(100%-2rem))] rounded-[20px] border border-cyan-400/25 bg-slate-950/70 p-3 backdrop-blur-lg">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-300/75">
-              SportSphere AI
-            </p>
-            <h1 className="mt-1 text-xl font-semibold text-white md:text-2xl">
-              World Cup Host City Explorer
-            </h1>
+      <div className="absolute left-4 top-4 z-20 w-[min(20rem,calc(100%-2rem))] flex flex-col gap-3.5 max-h-[calc(100vh-2rem)] overflow-y-auto scrollbar-thin pr-1 pointer-events-auto">
+        {/* Main Legend HUD */}
+        <div className="rounded-[20px] border border-cyan-400/25 bg-slate-950/70 p-3 backdrop-blur-lg">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-300/75">
+                SportSphere AI
+              </p>
+              <h1 className="mt-1 text-xl font-semibold text-white md:text-2xl">
+                World Cup Host City Explorer
+              </h1>
+            </div>
+            <div className={`rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.28em] ${
+              webGL2Supported 
+                ? "border-cyan-400/40 bg-cyan-400/10 text-cyan-100" 
+                : "border-amber-400/40 bg-amber-400/10 text-amber-100"
+            }`}>
+              {webGL2Supported ? "3D map mode" : "2D fallback"}
+            </div>
           </div>
-          <div className={`rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.28em] ${
-            webGL2Supported 
-              ? "border-cyan-400/40 bg-cyan-400/10 text-cyan-100" 
-              : "border-amber-400/40 bg-amber-400/10 text-amber-100"
-          }`}>
-            {webGL2Supported ? "3D map mode" : "2D fallback"}
+
+          <p className="mt-2 max-w-xl text-[12px] text-slate-300">
+            Futuristic host city network across North America with glowing markers,
+            match intelligence, and venue detail.
+          </p>
+
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {filteredCities.map((city) => {
+              const isSelected = selectedCity?.id === city.id;
+              return (
+                <button
+                  key={city.id}
+                  onClick={() => setSelectedCity(city)}
+                  className={`rounded-full border px-2 py-0.5 text-[10px] transition-all cursor-pointer ${
+                    isSelected
+                      ? "border-cyan-400 bg-cyan-500/20 text-white font-medium shadow-[0_0_10px_rgba(34,211,238,0.25)]"
+                      : "border-white/10 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10"
+                  }`}
+                >
+                  {city.name}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-2.5">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full border border-cyan-300/60 bg-cyan-400/20 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
+                3D View
+              </span>
+              {selectedCity && (
+                <button
+                  onClick={() => setSelectedCity(null)}
+                  className="rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-0.5 text-[9px] font-medium text-rose-300 hover:bg-rose-500/20 transition-all cursor-pointer"
+                >
+                  Reset Camera
+                </button>
+              )}
+            </div>
+
+            <label className="relative inline-flex items-center cursor-pointer scale-90">
+              <input
+                type="checkbox"
+                checked={showAdLayer}
+                onChange={(e) => setShowAdLayer(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-7 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-cyan-500" />
+              <span className="ml-1.5 text-[9px] uppercase tracking-wider text-slate-300">Virtual Ads</span>
+            </label>
           </div>
         </div>
 
-        <p className="mt-2 max-w-xl text-[12px] text-slate-300">
-          Futuristic host city network across North America with glowing markers,
-          match intelligence, and venue detail.
-        </p>
-
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {hostCities.map((city) => {
-            const isSelected = selectedCity?.id === city.id;
-            return (
-              <button
-                key={city.id}
-                onClick={() => setSelectedCity(city)}
-                className={`rounded-full border px-2 py-0.5 text-[10px] transition-all cursor-pointer ${
-                  isSelected
-                    ? "border-cyan-400 bg-cyan-500/20 text-white font-medium shadow-[0_0_10px_rgba(34,211,238,0.25)]"
-                    : "border-white/10 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10"
-                }`}
-              >
-                {city.name}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-2.5">
-          <div className="flex items-center gap-2">
-            <span className="rounded-full border border-cyan-300/60 bg-cyan-400/20 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
-              3D View
-            </span>
-            {selectedCity && (
-              <button
-                onClick={() => setSelectedCity(null)}
-                className="rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-0.5 text-[9px] font-medium text-rose-300 hover:bg-rose-500/20 transition-all cursor-pointer"
-              >
-                Reset Camera
-              </button>
-            )}
-          </div>
-
-          <label className="relative inline-flex items-center cursor-pointer scale-90">
-            <input
-              type="checkbox"
-              checked={showAdLayer}
-              onChange={(e) => setShowAdLayer(e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-7 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-cyan-500" />
-            <span className="ml-1.5 text-[9px] uppercase tracking-wider text-slate-300">Virtual Ads</span>
-          </label>
-        </div>
+        {/* Dynamic Match Filtering Panel */}
+        <MatchFilterPanel filters={filters} onChange={setFilters} />
       </div>
 
       <div className="relative z-10 min-h-screen w-full">
@@ -116,6 +164,7 @@ export function GoogleWorldCupExplorer() {
             onSelectCity={setSelectedCity} 
             onFallbackTo2D={(fallback) => setWebGL2Supported(!fallback)}
             showAdLayer={showAdLayer}
+            cities={filteredCities}
           />
         ) : (
           <div className="h-screen w-full bg-slate-950 flex items-center justify-center">
@@ -130,6 +179,8 @@ export function GoogleWorldCupExplorer() {
         onReset={() => setSelectedCity(null)} 
         onToggleAI={() => setAiIntelligenceOpen(prev => !prev)}
         aiOpen={aiIntelligenceOpen}
+        filteredCities={filteredCities}
+        filters={filters}
       />
 
       <AIMatchIntelligence 

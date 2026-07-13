@@ -2,6 +2,7 @@ export type Fixture = {
   label: string;
   detail: string;
   time: string;
+  stage: string; // Group Stage, Round of 16, Quarter-Finals, Semi-Finals, Finals
 };
 
 export type TeamInfo = {
@@ -66,16 +67,19 @@ export const hostCities: HostCity[] = [
         label: "Opening lights",
         detail: "Skyline kickoff ceremony",
         time: "Aug 17 • 19:00 UTC",
+        stage: "Group Stage",
       },
       {
         label: "Fan pulse stream",
         detail: "Spatial crowd projection",
         time: "Aug 18 • 21:00 UTC",
+        stage: "Group Stage",
       },
       {
         label: "North America finals",
         detail: "Elite conference match",
         time: "Aug 20 • 18:30 UTC",
+        stage: "Quarter-Finals",
       },
     ],
   },
@@ -106,16 +110,19 @@ export const hostCities: HostCity[] = [
         label: "Stadium command",
         detail: "AI route control sync",
         time: "Aug 19 • 20:30 UTC",
+        stage: "Group Stage",
       },
       {
         label: "Midnight match",
         detail: "Prime time heat map",
         time: "Aug 21 • 23:00 UTC",
+        stage: "Group Stage",
       },
       {
         label: "Satellite feed",
         detail: "Crowd-to-pitch motion analysis",
         time: "Aug 23 • 19:45 UTC",
+        stage: "Round of 16",
       },
     ],
   },
@@ -146,16 +153,19 @@ export const hostCities: HostCity[] = [
         label: "Sunset forecast",
         detail: "Climate-aware crowd routing",
         time: "Aug 18 • 22:00 UTC",
+        stage: "Group Stage",
       },
       {
         label: "Vivid media hub",
         detail: "Global broadcast rehearsal",
         time: "Aug 20 • 17:15 UTC",
+        stage: "Round of 16",
       },
       {
         label: "Neon finale",
         detail: "Pitch telemetry showcase",
         time: "Aug 24 • 23:00 UTC",
+        stage: "Quarter-Finals",
       },
     ],
   },
@@ -186,16 +196,19 @@ export const hostCities: HostCity[] = [
         label: "Harbor pulse",
         detail: "Transit concurrency view",
         time: "Aug 20 • 16:00 UTC",
+        stage: "Group Stage",
       },
       {
         label: "Data tunnel",
         detail: "Predictive crowd flow",
         time: "Aug 22 • 20:15 UTC",
+        stage: "Round of 16",
       },
       {
         label: "Regional semi",
         detail: "AI tactical corridor",
         time: "Aug 25 • 18:45 UTC",
+        stage: "Semi-Finals",
       },
     ],
   },
@@ -226,16 +239,19 @@ export const hostCities: HostCity[] = [
         label: "High-altitude analysis",
         detail: "Recovery rhythm overview",
         time: "Aug 18 • 18:30 UTC",
+        stage: "Group Stage",
       },
       {
         label: "Legacy match",
         detail: "Crowd signal snapshot",
         time: "Aug 22 • 21:30 UTC",
+        stage: "Round of 16",
       },
       {
         label: "Final descent",
         detail: "Forecasted stadium surge",
         time: "Aug 24 • 19:15 UTC",
+        stage: "Quarter-Finals",
       },
     ],
   },

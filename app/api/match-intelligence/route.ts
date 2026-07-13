@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
 
 export async function POST(request: Request) {
   try {
@@ -12,8 +11,6 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
-
-    const openai = new OpenAI({ apiKey });
 
     const prompt = `
       You are SportSphere AI, an elite football analytics assistant.
@@ -66,13 +63,26 @@ export async function POST(request: Request) {
       Respond ONLY with valid JSON. Do not include markdown code block formatting or any extra text.
     `;
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: prompt }],
-      response_format: { type: 'json_object' },
+    const openAiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: 'json_object' },
+      }),
     });
 
-    const resultText = response.choices[0].message.content || '{}';
+    if (!openAiResponse.ok) {
+      const errData = await openAiResponse.json();
+      throw new Error(errData.error?.message || `OpenAI API returned status ${openAiResponse.status}`);
+    }
+
+    const data = await openAiResponse.json();
+    const resultText = data.choices?.[0]?.message?.content || '{}';
     return NextResponse.json(JSON.parse(resultText));
   } catch (error: any) {
     console.error('Error generating AI match intelligence:', error);

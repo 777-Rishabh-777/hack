@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { hostCities, type HostCity } from "@/components/host-city-data";
+import { type MatchFilters } from "@/components/match-filter-panel";
 
 type StadiumInfoPanelProps = {
   city: HostCity | null;
@@ -9,6 +10,8 @@ type StadiumInfoPanelProps = {
   onReset: () => void;
   onToggleAI?: () => void;
   aiOpen?: boolean;
+  filteredCities: HostCity[];
+  filters: MatchFilters;
 };
 
 export function StadiumInfoPanel({ 
@@ -16,7 +19,9 @@ export function StadiumInfoPanel({
   onSelectCity, 
   onReset, 
   onToggleAI, 
-  aiOpen 
+  aiOpen,
+  filteredCities,
+  filters
 }: StadiumInfoPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -43,7 +48,7 @@ export function StadiumInfoPanel({
               Host Cities & Stadiums
             </p>
             <div className="space-y-1.5 max-h-[220px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-cyan-500/20 scrollbar-track-transparent">
-              {hostCities.map((c) => (
+              {filteredCities.map((c) => (
                 <button
                   key={c.id}
                   onClick={() => onSelectCity(c)}
@@ -173,7 +178,11 @@ export function StadiumInfoPanel({
             </div>
 
             <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-              {city.fixtures.map((fixture) => (
+              {city.fixtures.filter(fixture => {
+                if (filters.stage && fixture.stage !== filters.stage) return false;
+                if (filters.date && !fixture.time.startsWith(filters.date)) return false;
+                return true;
+              }).map((fixture) => (
                 <div
                   key={`${city.id}-${fixture.label}`}
                   className="rounded-lg border border-white/5 bg-white/5 px-2.5 py-2 hover:bg-white/[0.08] transition-colors"

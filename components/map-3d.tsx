@@ -153,16 +153,23 @@ type Map3DProps = {
   onSelectCity: (city: HostCity) => void;
   onFallbackTo2D?: (fallback: boolean) => void;
   showAdLayer?: boolean;
+  cities: HostCity[];
 };
 
-export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, showAdLayer = true }: Map3DProps) {
+export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, showAdLayer = true, cities }: Map3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const initializedRef = useRef(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [use2D, setUse2D] = useState(false);
+  
   const billboardDOMsRef = useRef<HTMLElement[]>([]);
   const showAdLayerRef = useRef(showAdLayer);
+  
+  // Track dynamically loaded stadium markers, boundaries, and billboards to show/hide reactively
+  const stadiumMarkersRef = useRef<{ [cityId: string]: any }>({});
+  const boundariesRef = useRef<{ [cityId: string]: any }>({});
+  const billboardsByCityRef = useRef<{ [cityId: string]: any[] }>({});
 
   useEffect(() => {
     showAdLayerRef.current = showAdLayer;
@@ -175,15 +182,54 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
     }
   }, [use2D, onFallbackTo2D]);
 
-  // Show/Hide billboard elements dynamically
+  // Show/Hide billboard elements dynamically based on ad layer toggle and active city filters
   useEffect(() => {
-    billboardDOMsRef.current.forEach(dom => {
-      if (dom) {
-        const is3DMarker = dom.localName === 'gmp-marker-3d-interactive';
-        dom.style.display = showAdLayer ? (is3DMarker ? 'block' : 'flex') : 'none';
+    if (!initializedRef.current) return;
+    const activeIds = new Set(cities.map(c => c.id));
+
+    hostCities.forEach((city) => {
+      const active = activeIds.has(city.id);
+      const billboards = billboardsByCityRef.current[city.id] || [];
+      
+      billboards.forEach(billboard => {
+        if (billboard) {
+          const is3D = billboard.localName === 'gmp-marker-3d-interactive';
+          const shouldShow = active && showAdLayer;
+          billboard.style.display = shouldShow ? (is3D ? 'block' : 'flex') : 'none';
+        }
+      });
+    });
+  }, [showAdLayer, cities]);
+
+  // Show/Hide stadium markers and boundaries dynamically based on active filters
+  useEffect(() => {
+    if (!initializedRef.current || !mapRef.current) return;
+    const activeIds = new Set(cities.map(c => c.id));
+
+    hostCities.forEach((city) => {
+      const active = activeIds.has(city.id);
+
+      // Stadium Marker visibility
+      const marker = stadiumMarkersRef.current[city.id];
+      if (marker) {
+        if (marker.content) {
+          marker.content.style.display = active ? 'block' : 'none';
+        } else {
+          marker.style.display = active ? 'block' : 'none';
+        }
+      }
+
+      // Boundary visibility
+      const boundary = boundariesRef.current[city.id];
+      if (boundary) {
+        if (typeof boundary.setMap === 'function') {
+          boundary.setMap(active ? mapRef.current : null);
+        } else {
+          boundary.style.display = active ? 'block' : 'none';
+        }
       }
     });
-  }, [showAdLayer]);
+  }, [cities]);
 
   // Intercept all console outputs and window errors to catch runtime WebGL compile/link failures from Google Maps WASM
   useEffect(() => {
@@ -286,8 +332,11 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
           mapRef.current = map;
           initializedRef.current = true;
 
-          // Clear previously stored billboard DOMs
+          // Clear previously stored billboard DOMs and markers
           billboardDOMsRef.current = [];
+          stadiumMarkersRef.current = {};
+          boundariesRef.current = {};
+          billboardsByCityRef.current = {};
 
           // Add 2D markers for each host city
           hostCities.forEach((city, idx) => {
@@ -308,6 +357,11 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
               content: pin,
             });
 
+            // Save stadium marker ref and set initial display
+            stadiumMarkersRef.current[city.id] = marker;
+            const isActiveCity = cities.some(c => c.id === city.id);
+            pin.style.display = isActiveCity ? 'block' : 'none';
+
             const handleMarkerClick = () => {
               onSelectCity(city);
             };
@@ -315,19 +369,21 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             marker.addListener('gmp-click', handleMarkerClick);
 
             // Add 2D glowing boundary circle
-            new google.maps.Circle({
+            const circle = new google.maps.Circle({
               strokeColor: city.accent,
               strokeOpacity: 0.85,
               strokeWeight: 2,
               fillColor: city.accent,
               fillOpacity: 0.12,
-              map: map,
+              map: isActiveCity ? map : null,
               center: city.position,
               radius: 400, // 400 meters radius
             });
+            boundariesRef.current[city.id] = circle;
 
             // Sponsor billboards for 2D Fallback
             const citySponsors = [SPONSORS[idx % SPONSORS.length], SPONSORS[(idx + 1) % SPONSORS.length]];
+            billboardsByCityRef.current[city.id] = [];
             
             citySponsors.forEach((sponsor, sIdx) => {
               const offsetLat = sIdx === 0 ? 0.0012 : -0.0012;
@@ -335,8 +391,9 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
               
               const billboardDOM = createBillboardDOMElement(sponsor);
               billboardDOM.style.animation = "float-bob 3s ease-in-out infinite";
-              billboardDOM.style.display = showAdLayerRef.current ? 'flex' : 'none';
+              billboardDOM.style.display = (showAdLayerRef.current && isActiveCity) ? 'flex' : 'none';
               billboardDOMsRef.current.push(billboardDOM);
+              billboardsByCityRef.current[city.id].push(billboardDOM);
               
               new AdvancedMarkerElement({
                 map: map,
@@ -383,8 +440,11 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
         mapRef.current = map;
         initializedRef.current = true;
 
-        // Clear previously stored billboard DOMs
+        // Clear previously stored billboard DOMs and markers
         billboardDOMsRef.current = [];
+        stadiumMarkersRef.current = {};
+        boundariesRef.current = {};
+        billboardsByCityRef.current = {};
 
         // Add 3D markers for each host city
         hostCities.forEach((city, idx) => {
@@ -408,6 +468,11 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
 
           marker.append(pin);
 
+          // Save stadium marker ref and set initial display
+          stadiumMarkersRef.current[city.id] = marker;
+          const isActiveCity = cities.some(c => c.id === city.id);
+          marker.style.display = isActiveCity ? 'block' : 'none';
+
           // Listen for clicks on the 3D marker
           const handleMarkerClick = () => {
             onSelectCity(city);
@@ -430,10 +495,15 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             drawsOccludedSegments: true,
           });
 
+          // Save boundary ref and set initial display
+          boundariesRef.current[city.id] = boundary;
+          boundary.style.display = isActiveCity ? 'block' : 'none';
+
           map.append(boundary);
 
           // Sponsor billboards
           const citySponsors = [SPONSORS[idx % SPONSORS.length], SPONSORS[(idx + 1) % SPONSORS.length]];
+          billboardsByCityRef.current[city.id] = [];
           
           citySponsors.forEach((sponsor, sIdx) => {
             const offsetLat = sIdx === 0 ? 0.0012 : -0.0012;
@@ -455,8 +525,9 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             
             billboardMarker.append(template);
             billboardMarker.style.animation = "float-bob 3s ease-in-out infinite";
-            billboardMarker.style.display = showAdLayerRef.current ? 'block' : 'none';
+            billboardMarker.style.display = (showAdLayerRef.current && isActiveCity) ? 'block' : 'none';
             billboardDOMsRef.current.push(billboardMarker);
+            billboardsByCityRef.current[city.id].push(billboardMarker);
             
             map.append(billboardMarker);
           });
