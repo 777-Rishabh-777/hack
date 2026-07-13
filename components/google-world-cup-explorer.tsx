@@ -20,6 +20,7 @@ export function GoogleWorldCupExplorer() {
   const [selectedCity, setSelectedCity] = useState<HostCity | null>(null);
   const [webGL2Supported, setWebGL2Supported] = useState(true);
   const [aiIntelligenceOpen, setAiIntelligenceOpen] = useState(false);
+  const [showAdLayer, setShowAdLayer] = useState(true);
   const hasApiKey = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
@@ -80,18 +81,31 @@ export function GoogleWorldCupExplorer() {
           })}
         </div>
 
-        <div className="mt-3 flex items-center gap-2">
-          <span className="rounded-full border border-cyan-300/60 bg-cyan-400/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
-            3D View
-          </span>
-          {selectedCity && (
-            <button
-              onClick={() => setSelectedCity(null)}
-              className="rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-1 text-[10px] font-medium text-rose-300 hover:bg-rose-500/20 transition-all cursor-pointer"
-            >
-              Reset Camera
-            </button>
-          )}
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-2.5">
+          <div className="flex items-center gap-2">
+            <span className="rounded-full border border-cyan-300/60 bg-cyan-400/20 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
+              3D View
+            </span>
+            {selectedCity && (
+              <button
+                onClick={() => setSelectedCity(null)}
+                className="rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-0.5 text-[9px] font-medium text-rose-300 hover:bg-rose-500/20 transition-all cursor-pointer"
+              >
+                Reset Camera
+              </button>
+            )}
+          </div>
+
+          <label className="relative inline-flex items-center cursor-pointer scale-90">
+            <input
+              type="checkbox"
+              checked={showAdLayer}
+              onChange={(e) => setShowAdLayer(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-7 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-cyan-500" />
+            <span className="ml-1.5 text-[9px] uppercase tracking-wider text-slate-300">Virtual Ads</span>
+          </label>
         </div>
       </div>
 
@@ -101,6 +115,7 @@ export function GoogleWorldCupExplorer() {
             selectedCity={selectedCity} 
             onSelectCity={setSelectedCity} 
             onFallbackTo2D={(fallback) => setWebGL2Supported(!fallback)}
+            showAdLayer={showAdLayer}
           />
         ) : (
           <div className="h-screen w-full bg-slate-950 flex items-center justify-center">

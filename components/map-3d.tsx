@@ -44,18 +44,113 @@ function getCircleCoords(center: { lat: number; lng: number }, radiusKm: number,
   return coords;
 }
 
+const SPONSORS = [
+  {
+    name: "Nike",
+    logo: "⚡",
+    cta: "Shop Now ↗",
+    tagline: "Just Do It",
+    color: "#a855f7", // Violet
+  },
+  {
+    name: "Adidas",
+    logo: "▲",
+    cta: "Explore ↗",
+    tagline: "Impossible is Nothing",
+    color: "#22d3ee", // Cyan
+  },
+  {
+    name: "Coca-Cola",
+    logo: "🥤",
+    cta: "Unlock Deal ↗",
+    tagline: "Real Magic",
+    color: "#ef4444", // Red
+  },
+  {
+    name: "Visa",
+    logo: "💳",
+    cta: "Tap to Pay ↗",
+    tagline: "Everywhere You Want to Be",
+    color: "#3b82f6", // Blue
+  }
+];
+
+function createBillboardDOMElement(sponsor: typeof SPONSORS[0]) {
+  const container = document.createElement("div");
+  container.className = "relative p-2 px-3 rounded-xl border bg-slate-950/90 text-white flex flex-col items-center justify-center shadow-lg pointer-events-auto cursor-pointer select-none transition-all duration-300 hover:scale-105";
+  
+  container.style.borderColor = `${sponsor.color}55`;
+  container.style.boxShadow = `0 0 15px ${sponsor.color}25`;
+  container.style.minWidth = "120px";
+  container.style.textAlign = "center";
+  container.style.animation = "float-bob 3s ease-in-out infinite";
+  
+  const title = document.createElement("div");
+  title.className = "flex items-center gap-1.5 justify-center";
+  title.style.display = "flex";
+  title.style.alignItems = "center";
+  title.style.gap = "6px";
+  title.style.justifyContent = "center";
+  
+  const logo = document.createElement("span");
+  logo.textContent = sponsor.logo;
+  logo.style.color = sponsor.color;
+  logo.style.fontSize = "12px";
+  
+  const name = document.createElement("span");
+  name.textContent = sponsor.name;
+  name.style.fontSize = "11px";
+  name.style.fontWeight = "bold";
+  name.style.letterSpacing = "0.05em";
+  
+  title.appendChild(logo);
+  title.appendChild(name);
+  container.appendChild(title);
+  
+  const tagline = document.createElement("div");
+  tagline.textContent = sponsor.tagline;
+  tagline.style.fontSize = "8px";
+  tagline.style.color = "#94a3b8";
+  tagline.style.marginTop = "2px";
+  tagline.style.textTransform = "uppercase";
+  tagline.style.letterSpacing = "0.05em";
+  container.appendChild(tagline);
+
+  const cta = document.createElement("div");
+  cta.textContent = sponsor.cta;
+  cta.style.fontSize = "8px";
+  cta.style.color = sponsor.color;
+  cta.style.fontWeight = "bold";
+  cta.style.marginTop = "6px";
+  cta.style.padding = "2px 6px";
+  cta.style.borderRadius = "4px";
+  cta.style.background = `${sponsor.color}15`;
+  cta.style.border = `1px solid ${sponsor.color}35`;
+  cta.style.display = "inline-block";
+  container.appendChild(cta);
+
+  return container;
+}
+
 type Map3DProps = {
   selectedCity: HostCity | null;
   onSelectCity: (city: HostCity) => void;
   onFallbackTo2D?: (fallback: boolean) => void;
+  showAdLayer?: boolean;
 };
 
-export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D }: Map3DProps) {
+export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, showAdLayer = true }: Map3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const initializedRef = useRef(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [use2D, setUse2D] = useState(false);
+  const billboardDOMsRef = useRef<HTMLElement[]>([]);
+  const showAdLayerRef = useRef(showAdLayer);
+
+  useEffect(() => {
+    showAdLayerRef.current = showAdLayer;
+  }, [showAdLayer]);
 
   // Notify parent of fallback status
   useEffect(() => {
@@ -63,6 +158,15 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D }: Ma
       onFallbackTo2D?.(true);
     }
   }, [use2D, onFallbackTo2D]);
+
+  // Show/Hide billboard elements dynamically
+  useEffect(() => {
+    billboardDOMsRef.current.forEach(dom => {
+      if (dom) {
+        dom.style.display = showAdLayer ? 'flex' : 'none';
+      }
+    });
+  }, [showAdLayer]);
 
   // Intercept all console outputs and window errors to catch runtime WebGL compile/link failures from Google Maps WASM
   useEffect(() => {
@@ -165,8 +269,11 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D }: Ma
           mapRef.current = map;
           initializedRef.current = true;
 
+          // Clear previously stored billboard DOMs
+          billboardDOMsRef.current = [];
+
           // Add 2D markers for each host city
-          hostCities.forEach((city) => {
+          hostCities.forEach((city, idx) => {
             const pin = new PinElement({
               background: city.accent,
               borderColor: '#f8fafc',
@@ -189,6 +296,7 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D }: Ma
             };
 
             marker.addListener('gmp-click', handleMarkerClick);
+
             // Add 2D glowing boundary circle
             new google.maps.Circle({
               strokeColor: city.accent,
@@ -199,6 +307,27 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D }: Ma
               map: map,
               center: city.position,
               radius: 400, // 400 meters radius
+            });
+
+            // Sponsor billboards for 2D Fallback
+            const citySponsors = [SPONSORS[idx % SPONSORS.length], SPONSORS[(idx + 1) % SPONSORS.length]];
+            
+            citySponsors.forEach((sponsor, sIdx) => {
+              const offsetLat = sIdx === 0 ? 0.0012 : -0.0012;
+              const offsetLng = sIdx === 0 ? -0.0012 : 0.0012;
+              
+              const billboardDOM = createBillboardDOMElement(sponsor);
+              billboardDOM.style.display = showAdLayerRef.current ? 'flex' : 'none';
+              billboardDOMsRef.current.push(billboardDOM);
+              
+              new AdvancedMarkerElement({
+                map: map,
+                position: {
+                  lat: city.position.lat + offsetLat,
+                  lng: city.position.lng + offsetLng,
+                },
+                content: billboardDOM,
+              });
             });
           });
 
@@ -236,8 +365,11 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D }: Ma
         mapRef.current = map;
         initializedRef.current = true;
 
+        // Clear previously stored billboard DOMs
+        billboardDOMsRef.current = [];
+
         // Add 3D markers for each host city
-        hostCities.forEach((city) => {
+        hostCities.forEach((city, idx) => {
           const pin = new PinElement({
             background: city.accent,
             borderColor: '#f8fafc',
@@ -281,6 +413,30 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D }: Ma
           });
 
           map.append(boundary);
+
+          // Sponsor billboards
+          const citySponsors = [SPONSORS[idx % SPONSORS.length], SPONSORS[(idx + 1) % SPONSORS.length]];
+          
+          citySponsors.forEach((sponsor, sIdx) => {
+            const offsetLat = sIdx === 0 ? 0.0012 : -0.0012;
+            const offsetLng = sIdx === 0 ? -0.0012 : 0.0012;
+            
+            const billboardDOM = createBillboardDOMElement(sponsor);
+            billboardDOM.style.display = showAdLayerRef.current ? 'flex' : 'none';
+            billboardDOMsRef.current.push(billboardDOM);
+            
+            const billboardMarker = new Marker3DInteractiveElement({
+              position: {
+                lat: city.position.lat + offsetLat,
+                lng: city.position.lng + offsetLng,
+                altitude: 100, // Float at 100m altitude
+              },
+              altitudeMode: 'RELATIVE_TO_GROUND',
+            });
+            
+            billboardMarker.append(billboardDOM);
+            map.append(billboardMarker);
+          });
         });
 
         // Trigger camera fly to the initial selected city after a short delay (only if one is selected)
