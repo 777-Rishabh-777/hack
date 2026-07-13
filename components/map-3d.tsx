@@ -163,7 +163,8 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
   useEffect(() => {
     billboardDOMsRef.current.forEach(dom => {
       if (dom) {
-        dom.style.display = showAdLayer ? 'flex' : 'none';
+        const is3DMarker = dom.localName === 'gmp-marker-3d-interactive';
+        dom.style.display = showAdLayer ? (is3DMarker ? 'block' : 'flex') : 'none';
       }
     });
   }, [showAdLayer]);
@@ -378,6 +379,9 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             scale: 1.1,
           });
 
+          const pinTemplate = document.createElement("template");
+          pinTemplate.content.appendChild(pin);
+
           const marker = new Marker3DInteractiveElement({
             position: {
               lat: city.position.lat,
@@ -388,7 +392,7 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             extruded: true,
           });
 
-          marker.append(pin);
+          marker.append(pinTemplate);
 
           // Listen for clicks on the 3D marker
           const handleMarkerClick = () => {
@@ -422,8 +426,8 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             const offsetLng = sIdx === 0 ? -0.0012 : 0.0012;
             
             const billboardDOM = createBillboardDOMElement(sponsor);
-            billboardDOM.style.display = showAdLayerRef.current ? 'flex' : 'none';
-            billboardDOMsRef.current.push(billboardDOM);
+            const template = document.createElement("template");
+            template.content.appendChild(billboardDOM);
             
             const billboardMarker = new Marker3DInteractiveElement({
               position: {
@@ -434,7 +438,10 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
               altitudeMode: 'RELATIVE_TO_GROUND',
             });
             
-            billboardMarker.append(billboardDOM);
+            billboardMarker.append(template);
+            billboardMarker.style.display = showAdLayerRef.current ? 'block' : 'none';
+            billboardDOMsRef.current.push(billboardMarker);
+            
             map.append(billboardMarker);
           });
         });
