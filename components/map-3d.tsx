@@ -200,7 +200,7 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
           // Add a 3D Glowing boundary ring
           const boundaryCoords = getCircleCoords(city.position, 0.4); // 400m radius
           const boundary = new Polygon3DElement({
-            paths: boundaryCoords,
+            path: boundaryCoords,
             fillColor: `${city.accent}22`, // 13% opacity
             strokeColor: city.accent,
             strokeWidth: 3,
