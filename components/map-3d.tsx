@@ -79,7 +79,7 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
             background: city.accent,
             borderColor: '#f8fafc',
             glyphColor: '#ffffff',
-            glyph: city.id,
+            glyphText: city.id,
             scale: 1.1,
           });
 
@@ -93,7 +93,7 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
             extruded: true,
           });
 
-          marker.append(pin.element || pin);
+          marker.append(pin);
 
           // Listen for clicks on the 3D marker
           const handleMarkerClick = () => {
@@ -106,22 +106,24 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
           map.append(marker);
         });
 
-        // Trigger camera fly to the initial selected city after a short delay
+        // Trigger camera fly to the initial selected city after a short delay (only if one is selected)
         setTimeout(() => {
           if (cancelled || !mapRef.current) return;
-          mapRef.current.flyCameraTo({
-            endCamera: {
-              center: {
-                lat: selectedCity.position.lat,
-                lng: selectedCity.position.lng,
-                altitude: 0,
+          if (selectedCity) {
+            mapRef.current.flyCameraTo({
+              endCamera: {
+                center: {
+                  lat: selectedCity.position.lat,
+                  lng: selectedCity.position.lng,
+                  altitude: 0,
+                },
+                range: zoomToRange(selectedCity.camera.zoom),
+                tilt: selectedCity.camera.tilt,
+                heading: selectedCity.camera.heading,
               },
-              range: zoomToRange(selectedCity.camera.zoom),
-              tilt: selectedCity.camera.tilt,
-              heading: selectedCity.camera.heading,
-            },
-            durationMillis: 2500,
-          });
+              durationMillis: 2500,
+            });
+          }
         }, 1200);
 
       } catch (err: any) {
@@ -151,19 +153,35 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
     if (!initializedRef.current || !mapRef.current) return;
 
     try {
-      mapRef.current.flyCameraTo({
-        endCamera: {
-          center: {
-            lat: selectedCity.position.lat,
-            lng: selectedCity.position.lng,
-            altitude: 0,
+      if (selectedCity) {
+        mapRef.current.flyCameraTo({
+          endCamera: {
+            center: {
+              lat: selectedCity.position.lat,
+              lng: selectedCity.position.lng,
+              altitude: 0,
+            },
+            range: zoomToRange(selectedCity.camera.zoom),
+            tilt: selectedCity.camera.tilt,
+            heading: selectedCity.camera.heading,
           },
-          range: zoomToRange(selectedCity.camera.zoom),
-          tilt: selectedCity.camera.tilt,
-          heading: selectedCity.camera.heading,
-        },
-        durationMillis: 2000,
-      });
+          durationMillis: 2000,
+        });
+      } else {
+        mapRef.current.flyCameraTo({
+          endCamera: {
+            center: {
+              lat: MAP_CENTER.lat,
+              lng: MAP_CENTER.lng,
+              altitude: 0,
+            },
+            range: zoomToRange(INITIAL_ZOOM),
+            tilt: 50,
+            heading: 0,
+          },
+          durationMillis: 2000,
+        });
+      }
     } catch (e) {
       console.warn('flyCameraTo failed:', e);
     }

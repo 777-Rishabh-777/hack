@@ -6,19 +6,8 @@ import { hostCities, type HostCity } from "@/components/host-city-data";
 import Map3D from "@/components/map-3d";
 
 export function GoogleWorldCupExplorer() {
-  const [selectedCity, setSelectedCity] = useState<HostCity>(hostCities[0]);
+  const [selectedCity, setSelectedCity] = useState<HostCity | null>(null);
   const hasApiKey = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-  const cityLegend = useMemo(
-    () => [
-      "New York",
-      "Dallas",
-      "Los Angeles",
-      "Toronto",
-      "Mexico City",
-    ],
-    [],
-  );
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#040814] text-white">
@@ -45,20 +34,36 @@ export function GoogleWorldCupExplorer() {
         </p>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {cityLegend.map((city) => (
-            <span
-              key={city}
-              className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-slate-200"
-            >
-              {city}
-            </span>
-          ))}
+          {hostCities.map((city) => {
+            const isSelected = selectedCity?.id === city.id;
+            return (
+              <button
+                key={city.id}
+                onClick={() => setSelectedCity(city)}
+                className={`rounded-full border px-2 py-0.5 text-[10px] transition-all cursor-pointer ${
+                  isSelected
+                    ? "border-cyan-400 bg-cyan-500/20 text-white font-medium shadow-[0_0_10px_rgba(34,211,238,0.25)]"
+                    : "border-white/10 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10"
+                }`}
+              >
+                {city.name}
+              </button>
+            );
+          })}
         </div>
 
         <div className="mt-3 flex items-center gap-2">
           <span className="rounded-full border border-cyan-300/60 bg-cyan-400/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
             3D View
           </span>
+          {selectedCity && (
+            <button
+              onClick={() => setSelectedCity(null)}
+              className="rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-1 text-[10px] font-medium text-rose-300 hover:bg-rose-500/20 transition-all cursor-pointer"
+            >
+              Reset Camera
+            </button>
+          )}
         </div>
       </div>
 
@@ -72,7 +77,11 @@ export function GoogleWorldCupExplorer() {
         )}
       </div>
 
-      <StadiumInfoPanel city={selectedCity} />
+      <StadiumInfoPanel 
+        city={selectedCity} 
+        onSelectCity={setSelectedCity} 
+        onReset={() => setSelectedCity(null)} 
+      />
 
       {!hasApiKey ? (
         <div className="absolute bottom-4 left-4 z-20 max-w-md rounded-2xl border border-amber-400/35 bg-slate-950/80 p-4 text-sm text-amber-100 backdrop-blur-lg">
