@@ -75,74 +75,164 @@ const SPONSORS = [
   }
 ];
 
-function createBillboardDOMElement(sponsor: typeof SPONSORS[0]) {
-  const container = document.createElement("div");
-  container.className = "relative p-2 px-3 rounded-xl border bg-slate-950/90 text-white flex flex-col items-center justify-center shadow-lg pointer-events-auto cursor-pointer select-none transition-all duration-300 hover:scale-105";
+function createHotAirBalloonAd(sponsor: typeof SPONSORS[0]) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", "130");
+  svg.setAttribute("height", "140");
+  svg.setAttribute("viewBox", "0 0 130 140");
+  svg.style.overflow = "visible";
+  svg.style.filter = `drop-shadow(0 0 12px ${sponsor.color}35)`;
+  svg.style.cursor = "pointer";
+
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+
+  // Balloon envelope gradient
+  const balloonGrad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+  balloonGrad.setAttribute("id", `balloon-grad-${sponsor.name}`);
+  balloonGrad.setAttribute("x1", "0%");
+  balloonGrad.setAttribute("y1", "0%");
+  balloonGrad.setAttribute("x2", "0%");
+  balloonGrad.setAttribute("y2", "100%");
+
+  const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+  stop1.setAttribute("offset", "0%");
+  stop1.setAttribute("stop-color", sponsor.color);
   
-  container.style.borderColor = `${sponsor.color}55`;
-  container.style.boxShadow = `0 0 15px ${sponsor.color}25`;
-  container.style.minWidth = "120px";
-  container.style.textAlign = "center";
+  const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+  stop2.setAttribute("offset", "80%");
+  stop2.setAttribute("stop-color", `${sponsor.color}77`);
+
+  const stop3 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+  stop3.setAttribute("offset", "100%");
+  stop3.setAttribute("stop-color", "#0f172a");
+
+  balloonGrad.appendChild(stop1);
+  balloonGrad.appendChild(stop2);
+  balloonGrad.appendChild(stop3);
+  defs.appendChild(balloonGrad);
+
+  // Flame burner gradient
+  const flameGrad = document.createElementNS("http://www.w3.org/2000/svg", "radialGradient");
+  flameGrad.setAttribute("id", "flame-grad");
   
-  const title = document.createElement("div");
-  title.className = "flex items-center gap-1.5 justify-center";
-  title.style.display = "flex";
-  title.style.alignItems = "center";
-  title.style.gap = "6px";
-  title.style.justifyContent = "center";
+  const fStop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+  fStop1.setAttribute("offset", "0%");
+  fStop1.setAttribute("stop-color", "#fb923c");
   
+  const fStop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+  fStop2.setAttribute("offset", "100%");
+  fStop2.setAttribute("stop-color", "transparent");
+
+  flameGrad.appendChild(fStop1);
+  flameGrad.appendChild(fStop2);
+  defs.appendChild(flameGrad);
+
+  svg.appendChild(defs);
+
+  // 1. Balloon Envelope Path
+  const envelope = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  envelope.setAttribute("d", "M 65,10 C 30,10 30,52 50,68 L 50,75 L 80,75 L 80,68 C 100,52 100,10 65,10 Z");
+  envelope.setAttribute("fill", `url(#balloon-grad-${sponsor.name})`);
+  envelope.setAttribute("stroke", `${sponsor.color}bb`);
+  envelope.setAttribute("stroke-width", "1.5");
+  svg.appendChild(envelope);
+
+  // 2. Stripe overlays
+  const stripeLeft = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  stripeLeft.setAttribute("d", "M 65,10 C 42,10 40,52 50,75 M 65,10 C 52,10 50,52 60,75");
+  stripeLeft.setAttribute("fill", "none");
+  stripeLeft.setAttribute("stroke", "rgba(255,255,255,0.15)");
+  stripeLeft.setAttribute("stroke-width", "1");
+  svg.appendChild(stripeLeft);
+
+  const stripeRight = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  stripeRight.setAttribute("d", "M 65,10 C 88,10 90,52 80,75 M 65,10 C 78,10 80,52 70,75");
+  stripeRight.setAttribute("fill", "none");
+  stripeRight.setAttribute("stroke", "rgba(255,255,255,0.15)");
+  stripeRight.setAttribute("stroke-width", "1");
+  svg.appendChild(stripeRight);
+
+  // 3. Burner Flame Glow
+  const flame = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  flame.setAttribute("points", "60,75 65,82 70,75");
+  flame.setAttribute("fill", "url(#flame-grad)");
+  svg.appendChild(flame);
+
+  // 4. Connecting Ropes
+  const ropeLeft = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ropeLeft.setAttribute("x1", "53");
+  ropeLeft.setAttribute("y1", "75");
+  ropeLeft.setAttribute("x2", "58");
+  ropeLeft.setAttribute("y2", "88");
+  ropeLeft.setAttribute("stroke", "#94a3b8");
+  ropeLeft.setAttribute("stroke-width", "0.75");
+  svg.appendChild(ropeLeft);
+
+  const ropeRight = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ropeRight.setAttribute("x1", "77");
+  ropeRight.setAttribute("y1", "75");
+  ropeRight.setAttribute("x2", "72");
+  ropeRight.setAttribute("y2", "88");
+  ropeRight.setAttribute("stroke", "#94a3b8");
+  ropeRight.setAttribute("stroke-width", "0.75");
+  svg.appendChild(ropeRight);
+
+  // 5. Basket
+  const basket = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  basket.setAttribute("x", "57");
+  basket.setAttribute("y", "88");
+  basket.setAttribute("width", "16");
+  basket.setAttribute("height", "11");
+  basket.setAttribute("rx", "2");
+  basket.setAttribute("fill", "#78350f");
+  basket.setAttribute("stroke", "#451a03");
+  basket.setAttribute("stroke-width", "1");
+  svg.appendChild(basket);
+
+  // 6. Premium Glassmorphic Badge Overlay on the balloon face
+  const foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+  foreignObject.setAttribute("x", "38");
+  foreignObject.setAttribute("y", "20");
+  foreignObject.setAttribute("width", "54");
+  foreignObject.setAttribute("height", "45");
+
+  const htmlContainer = document.createElement("div");
+  htmlContainer.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+  htmlContainer.className = "flex flex-col items-center justify-center h-full w-full rounded-lg bg-slate-950/80 border border-white/10 p-1 text-center shadow-md select-none transition-all duration-300";
+  htmlContainer.style.borderColor = `${sponsor.color}44`;
+  htmlContainer.style.boxShadow = `0 4px 10px ${sponsor.color}15`;
+
   const logo = document.createElement("span");
   logo.textContent = sponsor.logo;
   logo.style.color = sponsor.color;
   logo.style.fontSize = "12px";
-  
+  logo.style.lineHeight = "1";
+  htmlContainer.appendChild(logo);
+
   const name = document.createElement("span");
   name.textContent = sponsor.name;
-  name.style.fontSize = "11px";
+  name.style.fontSize = "8px";
   name.style.fontWeight = "bold";
+  name.style.color = "white";
   name.style.letterSpacing = "0.05em";
-  
-  title.appendChild(logo);
-  title.appendChild(name);
-  container.appendChild(title);
-  
-  const tagline = document.createElement("div");
-  tagline.textContent = sponsor.tagline;
-  tagline.style.fontSize = "8px";
-  tagline.style.color = "#94a3b8";
-  tagline.style.marginTop = "2px";
-  tagline.style.textTransform = "uppercase";
-  tagline.style.letterSpacing = "0.05em";
-  container.appendChild(tagline);
+  name.style.marginTop = "2px";
+  htmlContainer.appendChild(name);
 
-  const cta = document.createElement("div");
+  const cta = document.createElement("span");
   cta.textContent = sponsor.cta;
-  cta.style.fontSize = "8px";
+  cta.style.fontSize = "6px";
   cta.style.color = sponsor.color;
   cta.style.fontWeight = "bold";
-  cta.style.marginTop = "6px";
-  cta.style.padding = "2px 6px";
-  cta.style.borderRadius = "4px";
-  cta.style.background = `${sponsor.color}15`;
-  cta.style.border = `1px solid ${sponsor.color}35`;
-  cta.style.display = "inline-block";
-  container.appendChild(cta);
+  cta.style.marginTop = "4px";
+  cta.style.padding = "1px 4px";
+  cta.style.borderRadius = "2px";
+  cta.style.background = `${sponsor.color}20`;
+  cta.style.border = `1px solid ${sponsor.color}40`;
+  cta.style.textTransform = "uppercase";
+  cta.style.letterSpacing = "0.02em";
+  htmlContainer.appendChild(cta);
 
-  return container;
-}
-
-function wrapInSVGElement(billboardDOM: HTMLElement) {
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("width", "140");
-  svg.setAttribute("height", "80");
-  svg.setAttribute("viewBox", "0 0 140 80");
-
-  const foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
-  foreignObject.setAttribute("width", "100%");
-  foreignObject.setAttribute("height", "100%");
-
-  billboardDOM.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
-  foreignObject.appendChild(billboardDOM);
+  foreignObject.appendChild(htmlContainer);
   svg.appendChild(foreignObject);
 
   return svg;
@@ -163,7 +253,7 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [use2D, setUse2D] = useState(false);
   
-  const billboardDOMsRef = useRef<HTMLElement[]>([]);
+  const billboardDOMsRef = useRef<any[]>([]);
   const showAdLayerRef = useRef(showAdLayer);
   
   // Track dynamically loaded stadium markers, boundaries, and billboards to show/hide reactively
@@ -389,11 +479,13 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
               const offsetLat = sIdx === 0 ? 0.0012 : -0.0012;
               const offsetLng = sIdx === 0 ? -0.0012 : 0.0012;
               
-              const billboardDOM = createBillboardDOMElement(sponsor);
-              billboardDOM.style.animation = "float-bob 3s ease-in-out infinite";
-              billboardDOM.style.display = (showAdLayerRef.current && isActiveCity) ? 'flex' : 'none';
-              billboardDOMsRef.current.push(billboardDOM);
-              billboardsByCityRef.current[city.id].push(billboardDOM);
+              const billboardSVG = createHotAirBalloonAd(sponsor);
+              billboardSVG.style.animation = "float-bob 3.5s ease-in-out infinite";
+              if (sIdx === 1) billboardSVG.style.animationDelay = "1.7s";
+              
+              billboardSVG.style.display = (showAdLayerRef.current && isActiveCity) ? 'block' : 'none';
+              billboardDOMsRef.current.push(billboardSVG);
+              billboardsByCityRef.current[city.id].push(billboardSVG);
               
               new AdvancedMarkerElement({
                 map: map,
@@ -401,7 +493,7 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
                   lat: city.position.lat + offsetLat,
                   lng: city.position.lng + offsetLng,
                 },
-                content: billboardDOM,
+                content: billboardSVG,
               });
             });
           });
@@ -509,8 +601,7 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             const offsetLat = sIdx === 0 ? 0.0012 : -0.0012;
             const offsetLng = sIdx === 0 ? -0.0012 : 0.0012;
             
-            const billboardDOM = createBillboardDOMElement(sponsor);
-            const billboardSVG = wrapInSVGElement(billboardDOM);
+            const billboardSVG = createHotAirBalloonAd(sponsor);
             const template = document.createElement("template");
             template.content.appendChild(billboardSVG);
             
@@ -518,13 +609,15 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
               position: {
                 lat: city.position.lat + offsetLat,
                 lng: city.position.lng + offsetLng,
-                altitude: 100, // Float at 100m altitude
+                altitude: 125, // Float high like a real hot air balloon
               },
               altitudeMode: 'RELATIVE_TO_GROUND',
             });
             
             billboardMarker.append(template);
-            billboardMarker.style.animation = "float-bob 3s ease-in-out infinite";
+            billboardMarker.style.animation = "float-bob 3.5s ease-in-out infinite";
+            if (sIdx === 1) billboardMarker.style.animationDelay = "1.7s";
+            
             billboardMarker.style.display = (showAdLayerRef.current && isActiveCity) ? 'block' : 'none';
             billboardDOMsRef.current.push(billboardMarker);
             billboardsByCityRef.current[city.id].push(billboardMarker);
