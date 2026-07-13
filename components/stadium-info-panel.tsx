@@ -7,9 +7,17 @@ type StadiumInfoPanelProps = {
   city: HostCity | null;
   onSelectCity: (city: HostCity) => void;
   onReset: () => void;
+  onToggleAI?: () => void;
+  aiOpen?: boolean;
 };
 
-export function StadiumInfoPanel({ city, onSelectCity, onReset }: StadiumInfoPanelProps) {
+export function StadiumInfoPanel({ 
+  city, 
+  onSelectCity, 
+  onReset, 
+  onToggleAI, 
+  aiOpen 
+}: StadiumInfoPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   if (!city) {
@@ -140,6 +148,17 @@ export function StadiumInfoPanel({ city, onSelectCity, onReset }: StadiumInfoPan
             <p className="mt-2 text-center text-[10px] text-slate-300/80 italic font-light truncate">
               {city.match}
             </p>
+
+            <button
+              onClick={onToggleAI}
+              className={`w-full mt-2.5 rounded-lg border py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                aiOpen 
+                  ? "bg-violet-600/30 border-violet-500 text-violet-200" 
+                  : "bg-violet-600/10 border-violet-500/30 text-violet-300 hover:bg-violet-600/20"
+              }`}
+            >
+              ✦ AI Match Intelligence
+            </button>
           </div>
 
           {/* Fixtures List */}

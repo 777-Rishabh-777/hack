@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { StadiumInfoPanel } from "@/components/stadium-info-panel";
 import { hostCities, type HostCity } from "@/components/host-city-data";
 import Map3D from "@/components/map-3d";
+import { AIMatchIntelligence } from "@/components/ai-match-intelligence";
 
 function isWebGL2Available() {
   if (typeof window === 'undefined') return false;
@@ -18,11 +19,19 @@ function isWebGL2Available() {
 export function GoogleWorldCupExplorer() {
   const [selectedCity, setSelectedCity] = useState<HostCity | null>(null);
   const [webGL2Supported, setWebGL2Supported] = useState(true);
+  const [aiIntelligenceOpen, setAiIntelligenceOpen] = useState(false);
   const hasApiKey = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
     setWebGL2Supported(isWebGL2Available());
   }, []);
+
+  // Auto-close AI Match Intelligence panel when returning to World View
+  useEffect(() => {
+    if (!selectedCity) {
+      setAiIntelligenceOpen(false);
+    }
+  }, [selectedCity]);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#040814] text-white">
@@ -104,6 +113,14 @@ export function GoogleWorldCupExplorer() {
         city={selectedCity} 
         onSelectCity={setSelectedCity} 
         onReset={() => setSelectedCity(null)} 
+        onToggleAI={() => setAiIntelligenceOpen(prev => !prev)}
+        aiOpen={aiIntelligenceOpen}
+      />
+
+      <AIMatchIntelligence 
+        city={selectedCity} 
+        isOpen={aiIntelligenceOpen} 
+        onClose={() => setAiIntelligenceOpen(false)} 
       />
 
       {!hasApiKey ? (
