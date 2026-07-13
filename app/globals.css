@@ -85,6 +85,22 @@ select {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(-6px) rotate(0.5deg);
+    transform: translateY(-8px) rotate(0.5deg);
   }
+}
+
+@keyframes fly-across {
+  0% {
+    transform: translateX(-140px) translateY(0) rotate(1deg);
+  }
+  50% {
+    transform: translateX(140px) translateY(-10px) rotate(-1deg);
+  }
+  100% {
+    transform: translateX(-140px) translateY(0) rotate(1deg);
+  }
+}
+
+.animate-fly-across {
+  animation: fly-across 12s ease-in-out infinite;
 }
