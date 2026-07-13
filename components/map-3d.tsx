@@ -83,7 +83,6 @@ function createBillboardDOMElement(sponsor: typeof SPONSORS[0]) {
   container.style.boxShadow = `0 0 15px ${sponsor.color}25`;
   container.style.minWidth = "120px";
   container.style.textAlign = "center";
-  container.style.animation = "float-bob 3s ease-in-out infinite";
   
   const title = document.createElement("div");
   title.className = "flex items-center gap-1.5 justify-center";
@@ -130,6 +129,23 @@ function createBillboardDOMElement(sponsor: typeof SPONSORS[0]) {
   container.appendChild(cta);
 
   return container;
+}
+
+function wrapInSVGElement(billboardDOM: HTMLElement) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", "140");
+  svg.setAttribute("height", "80");
+  svg.setAttribute("viewBox", "0 0 140 80");
+
+  const foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+  foreignObject.setAttribute("width", "100%");
+  foreignObject.setAttribute("height", "100%");
+
+  billboardDOM.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+  foreignObject.appendChild(billboardDOM);
+  svg.appendChild(foreignObject);
+
+  return svg;
 }
 
 type Map3DProps = {
@@ -318,6 +334,7 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
               const offsetLng = sIdx === 0 ? -0.0012 : 0.0012;
               
               const billboardDOM = createBillboardDOMElement(sponsor);
+              billboardDOM.style.animation = "float-bob 3s ease-in-out infinite";
               billboardDOM.style.display = showAdLayerRef.current ? 'flex' : 'none';
               billboardDOMsRef.current.push(billboardDOM);
               
@@ -379,9 +396,6 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             scale: 1.1,
           });
 
-          const pinTemplate = document.createElement("template");
-          pinTemplate.content.appendChild(pin);
-
           const marker = new Marker3DInteractiveElement({
             position: {
               lat: city.position.lat,
@@ -392,7 +406,7 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             extruded: true,
           });
 
-          marker.append(pinTemplate);
+          marker.append(pin);
 
           // Listen for clicks on the 3D marker
           const handleMarkerClick = () => {
@@ -426,8 +440,9 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             const offsetLng = sIdx === 0 ? -0.0012 : 0.0012;
             
             const billboardDOM = createBillboardDOMElement(sponsor);
+            const billboardSVG = wrapInSVGElement(billboardDOM);
             const template = document.createElement("template");
-            template.content.appendChild(billboardDOM);
+            template.content.appendChild(billboardSVG);
             
             const billboardMarker = new Marker3DInteractiveElement({
               position: {
@@ -439,6 +454,7 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
             });
             
             billboardMarker.append(template);
+            billboardMarker.style.animation = "float-bob 3s ease-in-out infinite";
             billboardMarker.style.display = showAdLayerRef.current ? 'block' : 'none';
             billboardDOMsRef.current.push(billboardMarker);
             
