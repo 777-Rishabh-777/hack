@@ -129,13 +129,19 @@ function createHotAirBalloonAd(sponsor: typeof SPONSORS[0]) {
 
   svg.appendChild(defs);
 
+  // Create scale group centered at balloon center (80, 90)
+  const scaleGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  scaleGroup.setAttribute("class", "ad-scale-group");
+  scaleGroup.style.transformOrigin = "80px 90px";
+  scaleGroup.style.transition = "transform 0.25s ease-out";
+
   // 1. Balloon Envelope Path (Center is 80)
   const envelope = document.createElementNS("http://www.w3.org/2000/svg", "path");
   envelope.setAttribute("d", "M 80,10 C 35,10 35,65 60,85 L 60,95 L 100,95 L 100,85 C 125,65 125,10 80,10 Z");
   envelope.setAttribute("fill", `url(#balloon-grad-${sponsor.name})`);
   envelope.setAttribute("stroke", `${sponsor.color}ff`);
   envelope.setAttribute("stroke-width", "2");
-  svg.appendChild(envelope);
+  scaleGroup.appendChild(envelope);
 
   // 2. Stripe overlays
   const stripeLeft = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -143,20 +149,20 @@ function createHotAirBalloonAd(sponsor: typeof SPONSORS[0]) {
   stripeLeft.setAttribute("fill", "none");
   stripeLeft.setAttribute("stroke", "rgba(255,255,255,0.2)");
   stripeLeft.setAttribute("stroke-width", "1");
-  svg.appendChild(stripeLeft);
+  scaleGroup.appendChild(stripeLeft);
 
   const stripeRight = document.createElementNS("http://www.w3.org/2000/svg", "path");
   stripeRight.setAttribute("d", "M 80,10 C 110,10 112,65 100,95 M 80,10 C 95,10 97,65 90,95");
   stripeRight.setAttribute("fill", "none");
   stripeRight.setAttribute("stroke", "rgba(255,255,255,0.2)");
   stripeRight.setAttribute("stroke-width", "1");
-  svg.appendChild(stripeRight);
+  scaleGroup.appendChild(stripeRight);
 
   // 3. Burner Flame Glow
   const flame = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
   flame.setAttribute("points", "73,95 80,104 87,95");
   flame.setAttribute("fill", "url(#flame-grad)");
-  svg.appendChild(flame);
+  scaleGroup.appendChild(flame);
 
   // 4. Connecting Ropes
   const ropeLeft = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -166,7 +172,7 @@ function createHotAirBalloonAd(sponsor: typeof SPONSORS[0]) {
   ropeLeft.setAttribute("y2", "112");
   ropeLeft.setAttribute("stroke", "#e2e8f0");
   ropeLeft.setAttribute("stroke-width", "1");
-  svg.appendChild(ropeLeft);
+  scaleGroup.appendChild(ropeLeft);
 
   const ropeRight = document.createElementNS("http://www.w3.org/2000/svg", "line");
   ropeRight.setAttribute("x1", "96");
@@ -175,7 +181,7 @@ function createHotAirBalloonAd(sponsor: typeof SPONSORS[0]) {
   ropeRight.setAttribute("y2", "112");
   ropeRight.setAttribute("stroke", "#e2e8f0");
   ropeRight.setAttribute("stroke-width", "1");
-  svg.appendChild(ropeRight);
+  scaleGroup.appendChild(ropeRight);
 
   // 5. Basket
   const basket = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -187,7 +193,7 @@ function createHotAirBalloonAd(sponsor: typeof SPONSORS[0]) {
   basket.setAttribute("fill", "#78350f");
   basket.setAttribute("stroke", "#451a03");
   basket.setAttribute("stroke-width", "1.5");
-  svg.appendChild(basket);
+  scaleGroup.appendChild(basket);
 
   // 6. Premium Glassmorphic Badge Overlay (Significantly larger & bolder)
   const foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
@@ -233,8 +239,9 @@ function createHotAirBalloonAd(sponsor: typeof SPONSORS[0]) {
   htmlContainer.appendChild(cta);
 
   foreignObject.appendChild(htmlContainer);
-  svg.appendChild(foreignObject);
+  scaleGroup.appendChild(foreignObject);
 
+  svg.appendChild(scaleGroup);
   return svg;
 }
 
@@ -270,13 +277,19 @@ function createBiplaneAd(sponsor: typeof SPONSORS[0]) {
   defs.appendChild(bannerGrad);
   svg.appendChild(defs);
 
+  // Create scale group centered at biplane center (90, 30)
+  const scaleGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  scaleGroup.setAttribute("class", "ad-scale-group");
+  scaleGroup.style.transformOrigin = "90px 30px";
+  scaleGroup.style.transition = "transform 0.25s ease-out";
+
   // 1. Biplane Wings & Fuselage
   const fuselage = document.createElementNS("http://www.w3.org/2000/svg", "path");
   fuselage.setAttribute("d", "M 140,26 Q 155,16 172,26 Q 155,36 140,26 Z");
   fuselage.setAttribute("fill", sponsor.color);
   fuselage.setAttribute("stroke", "#ffffff");
   fuselage.setAttribute("stroke-width", "0.5");
-  svg.appendChild(fuselage);
+  scaleGroup.appendChild(fuselage);
 
   // Wings (Biplane double wing)
   const topWing = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
@@ -285,7 +298,7 @@ function createBiplaneAd(sponsor: typeof SPONSORS[0]) {
   topWing.setAttribute("rx", "12");
   topWing.setAttribute("ry", "2.5");
   topWing.setAttribute("fill", "#cbd5e1");
-  svg.appendChild(topWing);
+  scaleGroup.appendChild(topWing);
 
   const bottomWing = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
   bottomWing.setAttribute("cx", "158");
@@ -293,7 +306,7 @@ function createBiplaneAd(sponsor: typeof SPONSORS[0]) {
   bottomWing.setAttribute("rx", "11");
   bottomWing.setAttribute("ry", "2.5");
   bottomWing.setAttribute("fill", "#cbd5e1");
-  svg.appendChild(bottomWing);
+  scaleGroup.appendChild(bottomWing);
 
   // Wing struts
   const strutLeft = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -303,7 +316,7 @@ function createBiplaneAd(sponsor: typeof SPONSORS[0]) {
   strutLeft.setAttribute("y2", "35");
   strutLeft.setAttribute("stroke", "#64748b");
   strutLeft.setAttribute("stroke-width", "0.75");
-  svg.appendChild(strutLeft);
+  scaleGroup.appendChild(strutLeft);
 
   const strutRight = document.createElementNS("http://www.w3.org/2000/svg", "line");
   strutRight.setAttribute("x1", "164");
@@ -312,13 +325,13 @@ function createBiplaneAd(sponsor: typeof SPONSORS[0]) {
   strutRight.setAttribute("y2", "35");
   strutRight.setAttribute("stroke", "#64748b");
   strutRight.setAttribute("stroke-width", "0.75");
-  svg.appendChild(strutRight);
+  scaleGroup.appendChild(strutRight);
 
   // Tail fin
   const tail = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
   tail.setAttribute("points", "143,26 136,15 141,23");
   tail.setAttribute("fill", sponsor.color);
-  svg.appendChild(tail);
+  scaleGroup.appendChild(tail);
 
   // Propeller spinner
   const prop = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
@@ -327,7 +340,7 @@ function createBiplaneAd(sponsor: typeof SPONSORS[0]) {
   prop.setAttribute("rx", "1");
   prop.setAttribute("ry", "6");
   prop.setAttribute("fill", "#e2e8f0");
-  svg.appendChild(prop);
+  scaleGroup.appendChild(prop);
 
   // 2. Tow lines
   const lineTop = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -337,7 +350,7 @@ function createBiplaneAd(sponsor: typeof SPONSORS[0]) {
   lineTop.setAttribute("y2", "18");
   lineTop.setAttribute("stroke", "#94a3b8");
   lineTop.setAttribute("stroke-width", "0.75");
-  svg.appendChild(lineTop);
+  scaleGroup.appendChild(lineTop);
 
   const lineBottom = document.createElementNS("http://www.w3.org/2000/svg", "line");
   lineBottom.setAttribute("x1", "140");
@@ -346,7 +359,7 @@ function createBiplaneAd(sponsor: typeof SPONSORS[0]) {
   lineBottom.setAttribute("y2", "34");
   lineBottom.setAttribute("stroke", "#94a3b8");
   lineBottom.setAttribute("stroke-width", "0.75");
-  svg.appendChild(lineBottom);
+  scaleGroup.appendChild(lineBottom);
 
   // 3. Banner
   const banner = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -358,7 +371,7 @@ function createBiplaneAd(sponsor: typeof SPONSORS[0]) {
   banner.setAttribute("fill", `url(#banner-grad-${sponsor.name})`);
   banner.setAttribute("stroke", `${sponsor.color}bb`);
   banner.setAttribute("stroke-width", "1.5");
-  svg.appendChild(banner);
+  scaleGroup.appendChild(banner);
 
   // 4. HTML Content inside banner (Larger & clearer)
   const foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
@@ -403,8 +416,9 @@ function createBiplaneAd(sponsor: typeof SPONSORS[0]) {
   container.appendChild(cta);
 
   foreignObject.appendChild(container);
-  svg.appendChild(foreignObject);
+  scaleGroup.appendChild(foreignObject);
 
+  svg.appendChild(scaleGroup);
   return svg;
 }
 
@@ -423,6 +437,7 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [use2D, setUse2D] = useState(false);
   const [isZoomedIn, setIsZoomedIn] = useState(false);
+  const [adScale, setAdScale] = useState(1.0);
   
   const billboardDOMsRef = useRef<any[]>([]);
   const showAdLayerRef = useRef(showAdLayer);
@@ -443,7 +458,7 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
     }
   }, [use2D, onFallbackTo2D]);
 
-  // Show/Hide billboard elements dynamically based on ad layer toggle, active city filters, and zoom status
+  // Show/Hide and scale billboard elements dynamically based on ad layer toggle, active city filters, zoom status, and range scale
   useEffect(() => {
     if (!initializedRef.current) return;
     const activeIds = new Set(cities.map(c => c.id));
@@ -456,11 +471,24 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
         if (billboard) {
           const is3D = billboard.localName === 'gmp-marker-3d-interactive';
           const shouldShow = active && showAdLayer && isZoomedIn;
-          billboard.style.display = shouldShow ? (is3D ? 'block' : 'block') : 'none';
+          
+          billboard.style.display = shouldShow ? 'block' : 'none';
+          
+          if (shouldShow) {
+            // Find the SVG root inside the marker or content, and scale the .ad-scale-group internally
+            // This prevents conflicts between outer fly-across/bobbing animations and inner scaling
+            const targetElement = is3D ? billboard.querySelector('svg') : billboard;
+            if (targetElement) {
+              const scaleGroup = targetElement.querySelector('.ad-scale-group');
+              if (scaleGroup) {
+                scaleGroup.setAttribute('transform', `scale(${adScale.toFixed(3)})`);
+              }
+            }
+          }
         }
       });
     });
-  }, [showAdLayer, cities, isZoomedIn]);
+  }, [showAdLayer, cities, isZoomedIn, adScale]);
 
   // Show/Hide stadium markers and boundaries dynamically based on active filters
   useEffect(() => {
@@ -595,8 +623,12 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
 
           // Initialize zoom check and set up listener
           setIsZoomedIn(map.getZoom() >= 11);
+          setAdScale(Math.max(0.6, Math.min(2.5, 1.0 + (map.getZoom() - 12) * 0.35)));
+          
           map.addListener('zoom_changed', () => {
-            setIsZoomedIn(map.getZoom() >= 11);
+            const currentZoom = map.getZoom();
+            setIsZoomedIn(currentZoom >= 11);
+            setAdScale(Math.max(0.6, Math.min(2.5, 1.0 + (currentZoom - 12) * 0.35)));
           });
 
           // Clear previously stored billboard DOMs and markers
@@ -716,8 +748,12 @@ export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D, show
 
         // Initialize zoom check and set up camera change listener
         setIsZoomedIn(map.range < 50000);
+        setAdScale(Math.max(0.5, Math.min(2.5, 3200 / map.range)));
+        
         map.addEventListener('gmp-camera-change', (e: any) => {
-          setIsZoomedIn(e.target.range < 50000);
+          const currentRange = e.target.range;
+          setIsZoomedIn(currentRange < 50000);
+          setAdScale(Math.max(0.5, Math.min(2.5, 3200 / currentRange)));
         });
 
         // Clear previously stored billboard DOMs and markers
