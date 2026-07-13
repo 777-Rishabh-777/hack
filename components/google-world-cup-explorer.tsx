@@ -88,7 +88,11 @@ export function GoogleWorldCupExplorer() {
 
       <div className="relative z-10 min-h-screen w-full">
         {hasApiKey ? (
-          <Map3D selectedCity={selectedCity} onSelectCity={setSelectedCity} />
+          <Map3D 
+            selectedCity={selectedCity} 
+            onSelectCity={setSelectedCity} 
+            onFallbackTo2D={(fallback) => setWebGL2Supported(!fallback)}
+          />
         ) : (
           <div className="h-screen w-full bg-slate-950 flex items-center justify-center">
             <p className="text-slate-400 text-sm">Please add a valid Google Maps API key.</p>

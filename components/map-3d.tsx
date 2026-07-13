@@ -47,16 +47,90 @@ function getCircleCoords(center: { lat: number; lng: number }, radiusKm: number,
 type Map3DProps = {
   selectedCity: HostCity | null;
   onSelectCity: (city: HostCity) => void;
+  onFallbackTo2D?: (fallback: boolean) => void;
 };
 
-export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
+export default function Map3D({ selectedCity, onSelectCity, onFallbackTo2D }: Map3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const initializedRef = useRef(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [use2D, setUse2D] = useState(false);
 
-  // Initialize the map and markers once
+  // Notify parent of fallback status
+  useEffect(() => {
+    if (use2D) {
+      onFallbackTo2D?.(true);
+    }
+  }, [use2D, onFallbackTo2D]);
+
+  // Intercept all console outputs and window errors to catch runtime WebGL compile/link failures from Google Maps WASM
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const originalConsoleError = console.error;
+    const originalConsoleWarn = console.warn;
+    const originalConsoleLog = console.log;
+    const originalConsoleInfo = console.info;
+
+    const checkForShaderErrors = (...args: any[]) => {
+      const message = args.map(arg => String(arg)).join(' ');
+      if (
+        message.includes('ION:') ||
+        message.includes('Unable to compile') ||
+        message.includes('Unable to link') ||
+        message.includes('WebGL') ||
+        message.includes('WebGL2')
+      ) {
+        console.warn('WebGL shader compilation failed inside Google Maps WASM. Triggering interactive 2D Map fallback.');
+        setUse2D(true);
+      }
+    };
+
+    console.error = (...args: any[]) => {
+      originalConsoleError.apply(console, args);
+      checkForShaderErrors(...args);
+    };
+
+    console.warn = (...args: any[]) => {
+      originalConsoleWarn.apply(console, args);
+      checkForShaderErrors(...args);
+    };
+
+    console.log = (...args: any[]) => {
+      originalConsoleLog.apply(console, args);
+      checkForShaderErrors(...args);
+    };
+
+    console.info = (...args: any[]) => {
+      originalConsoleInfo.apply(console, args);
+      checkForShaderErrors(...args);
+    };
+
+    const handleContextLoss = () => {
+      console.warn('WebGL context lost or failed. Triggering interactive 2D Map fallback.');
+      setUse2D(true);
+    };
+    window.addEventListener('webglcontextcreationerror', handleContextLoss);
+
+    return () => {
+      console.error = originalConsoleError;
+      console.warn = originalConsoleWarn;
+      console.log = originalConsoleLog;
+      console.info = originalConsoleInfo;
+      window.removeEventListener('webglcontextcreationerror', handleContextLoss);
+    };
+  }, []);
+
+  // Check initial WebGL2 support
+  useEffect(() => {
+    const hasWebGL2 = isWebGL2Available();
+    if (!hasWebGL2) {
+      setUse2D(true);
+    }
+  }, []);
+
+  // Initialize the map and markers once (re-runs when use2D status flips)
   useEffect(() => {
     let cancelled = false;
 
@@ -72,10 +146,7 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
           v: 'beta',
         });
 
-        const hasWebGL2 = isWebGL2Available();
-        setUse2D(!hasWebGL2);
-
-        if (!hasWebGL2) {
+        if (use2D) {
           // Fallback to 2D Map
           const { Map } = (await importLibrary('maps')) as any;
           const { AdvancedMarkerElement, PinElement } = (await importLibrary('marker')) as any;
@@ -234,7 +305,8 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
 
       } catch (err: any) {
         console.error('Failed to initialize 3D Map:', err);
-        setErrorMessage(err.message || 'An error occurred while loading the 3D Map. Make sure your API key is valid and has billing enabled.');
+        // If 3D initialization throws an error, trigger 2D fallback
+        setUse2D(true);
       }
     }
 
@@ -254,7 +326,7 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
       }
       initializedRef.current = false;
     };
-  }, []);
+  }, [use2D]);
 
   // Fly/Pan to selected city when it changes
   useEffect(() => {
