@@ -4,6 +4,16 @@ export type Fixture = {
   time: string;
 };
 
+export type TeamInfo = {
+  group: string;
+  homeTeam: string;
+  awayTeam: string;
+  ranking: {
+    home: string;
+    away: string;
+  };
+};
+
 export type HostCity = {
   id: string;
   name: string;
@@ -19,6 +29,9 @@ export type HostCity = {
   };
   stadium: string;
   stadiumNote: string;
+  capacity: string;
+  image: string;
+  teamInfo: TeamInfo;
   match: string;
   status: string;
   accent: string;
@@ -34,6 +47,17 @@ export const hostCities: HostCity[] = [
     camera: { heading: 24, tilt: 68, zoom: 12.2 },
     stadium: "MetLife Stadium",
     stadiumNote: "Massive skyline arrival • premium fan corridor • AI analytics deck",
+    capacity: "82,500",
+    image: "/stadiums/metlife.jpg",
+    teamInfo: {
+      group: "Group A",
+      homeTeam: "United States",
+      awayTeam: "Brazil",
+      ranking: {
+        home: "#12",
+        away: "#5",
+      },
+    },
     match: "Global showcase opener • USA vs Brazil",
     status: "Launch city",
     accent: "#22d3ee",
@@ -63,6 +87,17 @@ export const hostCities: HostCity[] = [
     camera: { heading: 10, tilt: 66, zoom: 12.4 },
     stadium: "AT&T Stadium",
     stadiumNote: "Orbital dome • rapid transfer network • immersive stadium score wall",
+    capacity: "80,000",
+    image: "/stadiums/att.jpg",
+    teamInfo: {
+      group: "Group B",
+      homeTeam: "Argentina",
+      awayTeam: "Portugal",
+      ranking: {
+        home: "#1",
+        away: "#7",
+      },
+    },
     match: "Texas derby • Argentina vs Portugal",
     status: "High-velocity host",
     accent: "#7c3aed",
@@ -92,6 +127,17 @@ export const hostCities: HostCity[] = [
     camera: { heading: 18, tilt: 66, zoom: 12.5 },
     stadium: "SoFi Stadium",
     stadiumNote: "Oceanfront tech campus • AR fan overlays • smart transport lane",
+    capacity: "70,240",
+    image: "/stadiums/sofi.jpg",
+    teamInfo: {
+      group: "Group C",
+      homeTeam: "France",
+      awayTeam: "Morocco",
+      ranking: {
+        home: "#2",
+        away: "#13",
+      },
+    },
     match: "Coastal final • France vs Morocco",
     status: "Visionary venue",
     accent: "#f97316",
@@ -121,6 +167,17 @@ export const hostCities: HostCity[] = [
     camera: { heading: 30, tilt: 67, zoom: 12.6 },
     stadium: "BMO Field",
     stadiumNote: "Lakefront fan district • live AI translation kiosks • stadium climate mesh",
+    capacity: "30,000",
+    image: "/stadiums/bmo.jpg",
+    teamInfo: {
+      group: "Group D",
+      homeTeam: "Canada",
+      awayTeam: "Germany",
+      ranking: {
+        home: "#40",
+        away: "#11",
+      },
+    },
     match: "Northern summit • Canada vs Germany",
     status: "Gateway city",
     accent: "#14b8a6",
@@ -150,6 +207,17 @@ export const hostCities: HostCity[] = [
     camera: { heading: 6, tilt: 65, zoom: 12.8 },
     stadium: "Estadio Azteca",
     stadiumNote: "Cultural icon • legacy venue • immersive tunnel experience",
+    capacity: "87,523",
+    image: "/stadiums/azteca.jpg",
+    teamInfo: {
+      group: "Group E",
+      homeTeam: "Mexico",
+      awayTeam: "Uruguay",
+      ranking: {
+        home: "#15",
+        away: "#8",
+      },
+    },
     match: "Altitude challenge • Mexico vs Uruguay",
     status: "Heritage venue",
     accent: "#ef4444",

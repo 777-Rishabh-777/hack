@@ -25,6 +25,25 @@ function isWebGL2Available() {
   }
 }
 
+function getCircleCoords(center: { lat: number; lng: number }, radiusKm: number, numPoints: number = 32) {
+  const coords = [];
+  const kmPerDegreeLat = 111.32;
+  const kmPerDegreeLng = 40075 * Math.cos((center.lat * Math.PI) / 180) / 360;
+
+  for (let i = 0; i < numPoints; i++) {
+    const angle = (i * 2 * Math.PI) / numPoints;
+    const dx = radiusKm * Math.cos(angle);
+    const dy = radiusKm * Math.sin(angle);
+
+    coords.push({
+      lat: center.lat + dy / kmPerDegreeLat,
+      lng: center.lng + dx / kmPerDegreeLng,
+    });
+  }
+  coords.push(coords[0]); // close loop
+  return coords;
+}
+
 type Map3DProps = {
   selectedCity: HostCity | null;
   onSelectCity: (city: HostCity) => void;
@@ -91,7 +110,7 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
                 lat: city.position.lat,
                 lng: city.position.lng,
               },
-              content: pin.element || pin,
+              content: pin,
             });
 
             const handleMarkerClick = () => {
@@ -99,14 +118,24 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
             };
 
             marker.addListener('gmp-click', handleMarkerClick);
-            marker.addListener('click', handleMarkerClick);
+            // Add 2D glowing boundary circle
+            new google.maps.Circle({
+              strokeColor: city.accent,
+              strokeOpacity: 0.85,
+              strokeWeight: 2,
+              fillColor: city.accent,
+              fillOpacity: 0.12,
+              map: map,
+              center: city.position,
+              radius: 400, // 400 meters radius
+            });
           });
 
           return;
         }
 
         // Import libraries needed for 3D maps and markers
-        const { Map3DElement, Marker3DInteractiveElement } = 
+        const { Map3DElement, Marker3DInteractiveElement, Polygon3DElement } = 
           (await importLibrary('maps3d')) as any;
         const { PinElement } = 
           (await importLibrary('marker')) as any;
@@ -167,6 +196,20 @@ export default function Map3D({ selectedCity, onSelectCity }: Map3DProps) {
           marker.addEventListener('click', handleMarkerClick);
 
           map.append(marker);
+
+          // Add a 3D Glowing boundary ring
+          const boundaryCoords = getCircleCoords(city.position, 0.4); // 400m radius
+          const boundary = new Polygon3DElement({
+            paths: boundaryCoords,
+            fillColor: `${city.accent}22`, // 13% opacity
+            strokeColor: city.accent,
+            strokeWidth: 3,
+            extruded: false, // Flat on ground
+            altitudeMode: 'CLAMP_TO_GROUND',
+            drawsOccludedSegments: true,
+          });
+
+          map.append(boundary);
         });
 
         // Trigger camera fly to the initial selected city after a short delay (only if one is selected)

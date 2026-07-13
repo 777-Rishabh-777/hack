@@ -34,3 +34,33 @@ textarea,
 select {
   font: inherit;
 }
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slideInRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom scrollbar for a clean design */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.2);
+  border-radius: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.4);
+}
