@@ -1,13 +1,28 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StadiumInfoPanel } from "@/components/stadium-info-panel";
 import { hostCities, type HostCity } from "@/components/host-city-data";
 import Map3D from "@/components/map-3d";
 
+function isWebGL2Available() {
+  if (typeof window === 'undefined') return false;
+  try {
+    const canvas = document.createElement('canvas');
+    return !!(window.WebGL2RenderingContext && canvas.getContext('webgl2'));
+  } catch (e) {
+    return false;
+  }
+}
+
 export function GoogleWorldCupExplorer() {
   const [selectedCity, setSelectedCity] = useState<HostCity | null>(null);
+  const [webGL2Supported, setWebGL2Supported] = useState(true);
   const hasApiKey = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  useEffect(() => {
+    setWebGL2Supported(isWebGL2Available());
+  }, []);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#040814] text-white">
@@ -23,8 +38,12 @@ export function GoogleWorldCupExplorer() {
               World Cup Host City Explorer
             </h1>
           </div>
-          <div className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.28em] text-cyan-100">
-            3D map mode
+          <div className={`rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.28em] ${
+            webGL2Supported 
+              ? "border-cyan-400/40 bg-cyan-400/10 text-cyan-100" 
+              : "border-amber-400/40 bg-amber-400/10 text-amber-100"
+          }`}>
+            {webGL2Supported ? "3D map mode" : "2D fallback"}
           </div>
         </div>
 
@@ -86,6 +105,10 @@ export function GoogleWorldCupExplorer() {
       {!hasApiKey ? (
         <div className="absolute bottom-4 left-4 z-20 max-w-md rounded-2xl border border-amber-400/35 bg-slate-950/80 p-4 text-sm text-amber-100 backdrop-blur-lg">
           Add <span className="font-semibold text-white">NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</span> to enable the live Google Maps layer.
+        </div>
+      ) : !webGL2Supported ? (
+        <div className="absolute bottom-4 left-4 z-20 max-w-md rounded-2xl border border-amber-400/35 bg-slate-950/80 p-3 text-xs text-amber-200/90 backdrop-blur-lg">
+          ⚠️ <strong>WebGL2 is unsupported in this browser.</strong> Running in interactive 2D Map fallback mode. Try enabling hardware acceleration in browser settings.
         </div>
       ) : null}
     </div>
